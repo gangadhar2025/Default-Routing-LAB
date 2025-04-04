@@ -1,0 +1,157 @@
+Deaffault Route:
+  
+  when you try to reach unkown route from layer 3 device , the packet goes to gateway, 
+that gateway ip is wifi router ip.
+
+if a computer or router doesn't know where to send data, it will send it to a default gateway, which will try to find the destination.
+
+after configuring the default route on the router and when you try to reach any destination ip address 
+if that address is not in the routing table , it will choos default root 
+
+(0.0.0.0/0) represent unknown route in default routing (0.0.0.0 0.0.0.0 next-hop ip address )
+
+Here is 192.168.12.2 is ISP-1 gateway metric is 10
+and 192.168.13.3 is ISP-2 Gateway metric 50 is assigned, here the route with lowest metric value 
+is preferred as best route
+
+Verification 
+
+we have a configured two default routes in main router one is towards ISP-1 with cost 10 and 
+another one is towrads ISP-2 with cost value 50 
+
+initiat a trace route to 8.8.8.8 from PC and confirm 
+
+incase if ISP-1 goes down , it chooses the ISP-2 path to reach 8.8.8.8 google server ip 
+shutdown the link f0/0 on main router 
+
+conclusion 
+
+here we can default routing generally configured on office routers , when you have 2 or more isps 
+connections , you can configure default route towards ISP and hence users can acces the internet
+
+default routig AD value is 1, lower value prefer the best path 
+
+here we implemented Default routing and static routing.
+
+
+
+
+LAB WAN Configuration 
+
+Router1 ( main router)
+
+conf t
+int f0/0
+ip add 192.168.12.1 255.255.255.0
+no shut
+ex
+int f0/1
+ip add 192.168.13.1 255.255.255.0
+no shut
+ex
+int e4/0
+ip add 192.168.1.1 255.255.255.0
+no shut
+ex
+
+Router 2
+
+conf t
+int f0/0
+ip add 192.168.12.2 255.255.255.0
+no shut
+ex
+int f0/1
+ip add 192.168.24.2 255.255.255.0
+no shut
+ex
+
+Router 3
+
+conf t
+int f0/0
+ip add 192.168.34.3 255.255.255.0
+no shut
+ex
+int f0/1
+ip add 192.168.13.3 255.255.255.0
+no shut
+ex
+
+Router 4 ( google Router )
+
+conf t
+int f0/0
+ip add 192.168.34.4 255.255.255.0
+no shut
+ex
+int f0/1
+ip add 192.168.24.4 255.255.255.0
+no shut
+ex
+int lo0
+ip add 8.8.8.8 255.255.255.255
+ex
+
+
+Routing Protocols Configuration
+
+Router 1
+
+conf t
+ip route 0.0.0.0 0.0.0.0 192.168.12.2 10
+ip route 0.0.0.0 0.0.0.0 192.168.13.3 50
+
+router 2
+
+conf t
+ip route 8.8.8.8 255.255.255.255 192.168.24.4
+ip route 0.0.0.0 0.0.0.0 192.168.12.1 
+
+router 3
+
+conf t
+ip route 0.0.0.0 0.0.0.0 192.168.13.1
+ip route 8.8.8.8 255.255.255.255 192.168.34.4
+
+router 4
+
+conf t
+ip route 192.168.12.0 255.255.255.0 192.168.24.2
+ip route 192.168.1.0 255.255.255.0 192.168.24.2
+ip route 192.168.13.0 255.255.255.0 192.168.34.3
+ip route 192.168.1.0 255.255.255.0 192.168.34.3
+
+
+
+commands
+
+show run | s 0.0.0.0
+
+show run | s ip route
+
+show ip route 
+
+show ip int br | ex una
+
+show ip int br
+
+
+in PC1
+
+ip 192.168.1.5/24 192.168.1.1
+
+show ip 
+
+trace 8.8.8.8
+
+ping 8.8.8.8
+
+
+
+
+
+
+
+
+
